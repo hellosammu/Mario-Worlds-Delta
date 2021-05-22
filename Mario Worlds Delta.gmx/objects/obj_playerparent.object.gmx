@@ -1241,15 +1241,7 @@ else {
     
         //Check boundaries
         event_user(12);
-        
-        //Kill if the following conditions meet
-        if ((l) &amp;&amp; (r))
-        || ((t) &amp;&amp; (b)) {
-        
-            instance_create(x, y, obj_player_dead);
-            instance_destroy();
-            exit;
-        }
+
     }
 }
 </string>
@@ -1386,29 +1378,105 @@ vspeed = 0;
             <kind>1</kind>
             <string>///Check boundaries
 
-//Collision with left wall
-if ((collision_line(bbox_left-1, bbox_top+2, bbox_left-1, bbox_bottom, obj_solid, 0, 0)) || (collision_line(bbox_left-1, bbox_top+2, bbox_left-1, bbox_bottom, obj_solid_moving, 0, 0)))
-    l = 1;
-else
-    l = 0;
-    
-//Collision with right wall
-if ((collision_line(bbox_right+2, bbox_top+2, bbox_right+2, bbox_bottom, obj_solid, 0, 0)) || (collision_line(bbox_right+2, bbox_top+2, bbox_right+2, bbox_bottom, obj_solid_moving, 0, 0)))
-    r = 1;
-else
-    r = 0;
+//Dead yet? Hope not
+var dead = false;
 
-//Collision with ceiling
-if ((collision_line(bbox_left+1, bbox_top-1, bbox_right-2, bbox_top-1, obj_solid, 0, 0)) || (collision_line(bbox_left+1, bbox_top-1, bbox_right-2, bbox_top-1, obj_solid_moving, 0, 0)))
-    t = 1;
-else
-    t = 0;
+//Vertical collisions
+var check_t = (collision_rectangle(bbox_left+2,bbox_top-1-abs(vspeed),bbox_right-2,bbox_top+1+abs(vspeed),obj_solid_moving,0,0));
+var check_b = (collision_rectangle(bbox_left+2,bbox_bottom-1-abs(vspeed),bbox_right-2,bbox_top+1+abs(vspeed),obj_solid_moving,0,0));
+
+//Slam from the top
+if (check_t) {
+
+    //If the top check is lower than it was last frame...
+    if (check_t.y &gt; check_t.yprevious)
+    || (check_t.hspeed &gt; 0) {
     
-//Collision with floor
-if ((collision_line(bbox_left+1, bbox_bottom+1, bbox_right-2, bbox_bottom+1, obj_semisolid, 0, 0)) || (collision_point(x, bbox_bottom+1, obj_slopeparent, 1, 0)) || (collision_line(bbox_left+1, bbox_bottom+1, bbox_right-2, bbox_bottom+1, obj_semisolid_moving, 0, 0)))
-    b = 1;
-else
-    b = 0;
+        //And you're touching a block below,
+        if (collision_rectangle(bbox_left+2,bbox_top-1-abs(vspeed),bbox_right-2,bbox_top+1+abs(vspeed),obj_solid,0,0))
+        || (collision_rectangle(bbox_left+2,bbox_top-1-abs(vspeed),bbox_right-2,bbox_top+1+abs(vspeed),obj_solid_moving,0,0)) {
+        
+            //Die
+            dead = true;
+        
+        }
+    
+    }
+    
+}
+
+//Slam from the bottom
+if (check_b) {
+
+    //If the top check is lower than it was last frame...
+    if (check_b.y &lt; check_b.yprevious)
+    || (check_b.vspeed &lt; 0) {
+    
+        //And you're touching a block below,
+        if (collision_rectangle(bbox_left,bbox_bottom-1-abs(vspeed),bbox_right,bbox_bottom+1+abs(vspeed),obj_solid,0,0))
+        || (collision_rectangle(bbox_left,bbox_bottom-1-abs(vspeed),bbox_right,bbox_bottom+1+abs(vspeed),obj_solid_moving,0,0)) {
+        
+            //Die
+            dead = true;
+        
+        }
+    
+    }
+    
+}
+
+//Horizontal collisions
+var check_l = (collision_rectangle(bbox_left-1-abs(hspeed),bbox_top+4,bbox_left+1+abs(hspeed),bbox_bottom+4,obj_solid_moving,0,0));
+var check_r = (collision_rectangle(bbox_right-1-abs(hspeed),bbox_top+4,bbox_right+1+abs(hspeed),bbox_bottom+4,obj_solid_moving,0,0));
+
+//Slam from the left
+if (check_l) {
+
+    //If the left check is farther to the right than before...
+    if (check_l.x &gt; check_l.xprevious)
+    || (check_l.hspeed &gt; 0) {
+    
+        //And you're touching a block to the right
+        if (collision_rectangle(bbox_right-1-abs(hspeed),bbox_top,bbox_right+1+abs(hspeed),bbox_bottom,obj_solid,0,0))
+        || (collision_rectangle(bbox_right-1-abs(hspeed),bbox_top,bbox_right+1+abs(hspeed),bbox_bottom,obj_solid_moving,0,0)) {
+        
+            //Die
+            dead = true;
+        
+        }
+    
+    }
+    
+}
+
+//Slam from the right
+if (check_r) {
+
+    //If the right check is farther to the left than before...
+    if (check_r.x &lt; check_r.xprevious)
+    || (check_r.hspeed &lt; 0) {
+    
+        //And you're touching a block below,
+        if (collision_rectangle(bbox_left-1-abs(hspeed),bbox_top,bbox_left+1+abs(hspeed),bbox_top,obj_solid,0,0))
+        || (collision_rectangle(bbox_left-1-abs(hspeed),bbox_top,bbox_left+1+abs(hspeed),bbox_top,obj_solid_moving,0,0)) {
+        
+            //Die
+            dead = true;
+        
+        }
+    
+    }
+    
+}
+
+//Kill the player if need be
+if (dead) {
+
+    instance_create(x, y, obj_player_dead);
+    instance_destroy();
+    exit;
+
+}
 </string>
           </argument>
         </arguments>
@@ -1691,9 +1759,6 @@ else {
     //Reset palette
     pal_swap_reset();
 }
-
-//Draw markers
-draw_text(x-4, bbox_top-16, string(l) + ", " + string(r) + ", " + string(t) + ", " + string(b));
 </string>
           </argument>
         </arguments>

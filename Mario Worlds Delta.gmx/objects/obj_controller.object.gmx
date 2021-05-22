@@ -856,103 +856,80 @@ if (mode = 1)
             <kind>1</kind>
             <string>///Save Fullscreen + Window size + VSync Settings
 
-//Open the file
-var file = file_text_open_write("settings.dat");
+//Create the file data
+var file = ds_map_create();
 
 //Save fullscreen settings
-file_text_write_string(file, string(fullscreen));
-file_text_writeln(file);
+ds_map_replace(file, "fullscreen", fullscreen);
 
 //Save filtering settings
-file_text_write_string(file, string(filter));
-file_text_writeln(file);
+ds_map_replace(file, "filter", filter);
 
 //Save vsync settings
-file_text_write_string(file, string(vsync));
-file_text_writeln(file);
+ds_map_replace(file, "vsync", vsync);
 
 //Save HUD style
-file_text_write_string(file, string(hud_type));
-file_text_writeln(file);
+ds_map_replace(file, "hud", hud_type);
 
 //Save up key
-file_text_write_string(file, string(global.key[input.up]));
-file_text_writeln(file);
+ds_map_replace(file, "upK", global.key[input.up]);
 
 //Save down key
-file_text_write_string(file, string(global.key[input.down]));
-file_text_writeln(file);
+ds_map_replace(file, "downK", global.key[input.down]);
 
 //Save left key
-file_text_write_string(file, string(global.key[input.left]));
-file_text_writeln(file);
+ds_map_replace(file, "leftK", global.key[input.left]);
 
 //Save right key
-file_text_write_string(file, string(global.key[input.right]));
-file_text_writeln(file);
+ds_map_replace(file, "rightK", global.key[input.right]);
 
 //Save action 1 key
-file_text_write_string(file, string(global.key[input.action0]));
-file_text_writeln(file);
+ds_map_replace(file, "action1K", global.key[input.action0]);
 
 //Save action 2 key
-file_text_write_string(file, string(global.key[input.action1]));
-file_text_writeln(file);
+ds_map_replace(file, "action2K", global.key[input.action1]);
 
 //Save action 3 key
-file_text_write_string(file, string(global.key[input.action2]));
-file_text_writeln(file);
+ds_map_replace(file, "action3K", global.key[input.action2]);
 
 //Save select key
-file_text_write_string(file, string(global.key[input.select]));
-file_text_writeln(file);
+ds_map_replace(file, "selectK", global.key[input.select]);
 
 //Save start key
-file_text_write_string(file, string(global.key[input.start]));
-file_text_writeln(file);
+ds_map_replace(file, "startK", global.key[input.start]);
 
 //Save up button
-file_text_write_string(file, string(global.button[input.up]));
-file_text_writeln(file);
+ds_map_replace(file, "upB", global.button[input.up]);
 
 //Save down button
-file_text_write_string(file, string(global.button[input.down]));
-file_text_writeln(file);
+ds_map_replace(file, "downB", global.button[input.down]);
 
 //Save left button
-file_text_write_string(file, string(global.button[input.left]));
-file_text_writeln(file);
+ds_map_replace(file, "leftB", global.button[input.left]);
 
 //Save right button
-file_text_write_string(file, string(global.button[input.right]));
-file_text_writeln(file);
+ds_map_replace(file, "rightB", global.button[input.right]);
 
 //Save action 1 button
-file_text_write_string(file, string(global.button[input.action0]));
-file_text_writeln(file);
+ds_map_replace(file, "action1B", global.button[input.action0]);
 
 //Save action 2 button
-file_text_write_string(file, string(global.button[input.action1]));
-file_text_writeln(file);
+ds_map_replace(file, "action2B", global.button[input.action1]);
 
 //Save action 3 button
-file_text_write_string(file, string(global.button[input.action2]));
-file_text_writeln(file);
+ds_map_replace(file, "action3B", global.button[input.action2]);
 
 //Save select button
-file_text_write_string(file, string(global.button[input.select]));
-file_text_writeln(file);
+ds_map_replace(file, "selectB", global.button[input.select]);
 
 //Save start button
-file_text_write_string(file, string(global.button[input.start]));
-file_text_writeln(file);
+ds_map_replace(file, "startB", global.button[input.start]);
 
 //Autosave
-file_text_write_string(file, string(global.autosave));
-file_text_writeln(file);
+ds_map_replace(file, "autosave", global.autosave);
 
-//Close the file
-file_text_close(file);
+//Save the file data
+ds_map_secure_save(file, "settings.dat");
 </string>
           </argument>
         </arguments>
@@ -977,108 +954,102 @@ file_text_close(file);
             <kind>1</kind>
             <string>///Load Fullscreen + Window size + HUD + VSync Settings
 
+var new_file = false;
+
 //If the 'settings.dat' file exist.
 if (file_exists("settings.dat")) {
 
     //Open the file
-    var file = file_text_open_read("settings.dat");    
+    var file = ds_map_secure_load("settings.dat");
+    
+    if (file == -1) {
+    
+        new_file = true;
+        file_delete("settings.dat");
+        
+    } else {
+    
+        //Set fullscreen mode based on the read value
+        fullscreen = real(ds_map_find_value(file,"fullscreen"));
+    
+        //Set filtering mode based on the read value
+        filter = real(ds_map_find_value(file,"filter"));
+    
+        //Set vsync based on the read value
+        vsync = real(ds_map_find_value(file,"vsync"));
+        
+        //Set hud based on the read value
+        hud_type = real(ds_map_find_value(file,"hud"));
+        
+        //Set saved 'Up' Key
+        global.key[input.up] = real(ds_map_find_value(file,"upK"));
+        
+        //Set saved 'Down' key
+        global.key[input.down] = real(ds_map_find_value(file,"downK"));
+        
+        //Set saved 'Left' key
+        global.key[input.left] = real(ds_map_find_value(file,"leftK"));
+        
+        //Set saved 'Right' key
+        global.key[input.right] = real(ds_map_find_value(file,"rightK"));
+        
+        //Set saved 'Action 0' Key (Default: Z)
+        global.key[input.action0] = real(ds_map_find_value(file,"action1K"));
+        
+        //Set saved 'Action 1' Key (Default: X)
+        global.key[input.action1] = real(ds_map_find_value(file,"action2K"));
 
-    //Set fullscreen mode based on the read value
-    fullscreen = real(file_text_read_string(file));
-    file_text_readln(file);
+        //Set saved 'Action 2' Key (Default: C)
+        global.key[input.action2] = real(ds_map_find_value(file,"action3K"));
+        
+        //Set saved 'Select' Key (Default: Backspace)
+        global.key[input.select] = real(ds_map_find_value(file,"selectK"));
+        
+        //Set saved 'Start' Button (Default: Enter)
+        global.key[input.start] = real(ds_map_find_value(file,"startK"));
+        
+        //Set saved 'Up' Button
+        global.button[input.up] = real(ds_map_find_value(file,"upB"));
+        
+        //Set saved 'Down' Button
+        global.button[input.down] = real(ds_map_find_value(file,"downB"));
+        
+        //Set saved 'Left' Button
+        global.button[input.left] = real(ds_map_find_value(file,"leftB"));
+        
+        //Set saved 'Right' Button
+        global.button[input.right] = real(ds_map_find_value(file,"rightB"));
+        
+        //Set saved 'Action 0' Button (Default: A)
+        global.button[input.action0] = real(ds_map_find_value(file,"action1B"));
+        
+        //Set saved 'Action 1' Button (Default: X)
+        global.button[input.action1] = real(ds_map_find_value(file,"action2B"));
+        
+        //Set saved 'Action 2' Button (Default: B)
+        global.button[input.action2] = real(ds_map_find_value(file,"action3B"));
+                
+        //Set saved 'Select' Button (Default: Select)
+        global.button[input.select] = real(ds_map_find_value(file,"selectB"));
+        
+        //Set saved 'Start' Button (Default: Start)
+        global.button[input.start] = real(ds_map_find_value(file,"startB"));
+        
+        //Set autosave state (Default: true)
+        global.autosave = real(ds_map_find_value(file,"autosave"));
+    
+        //Close the file
+        ds_map_destroy(file);
+        
+    }
+    
+} else {
 
-    //Set filtering mode based on the read value
-    filter = real(file_text_read_string(file));
-    file_text_readln(file);
-
-    //Set vsync based on the read value
-    vsync = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set hud based on the read value
-    hud_type = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Up' Key
-    global.key[input.up] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Down' key
-    global.key[input.down] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Left' key
-    global.key[input.left] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Right' key
-    global.key[input.right] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 0' Key (Default: Z)
-    global.key[input.action0] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 1' Key (Default: X)
-    global.key[input.action1] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 2' Key (Default: C)
-    global.key[input.action2] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Select' Key (Default: Backspace)
-    global.key[input.select] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Start' Button (Default: Enter)
-    global.key[input.start] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Up' Button
-    global.button[input.up] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Down' Button
-    global.button[input.down] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Left' Button
-    global.button[input.left] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Right' Button
-    global.button[input.right] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 0' Button (Default: A)
-    global.button[input.action0] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 1' Button (Default: X)
-    global.button[input.action1] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Action 2' Button (Default: B)
-    global.button[input.action2] = real(file_text_read_string(file));
-    file_text_readln(file);
-            
-    //Set saved 'Select' Button (Default: Select)
-    global.button[input.select] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set saved 'Start' Button (Default: Start)
-    global.button[input.start] = real(file_text_read_string(file));
-    file_text_readln(file);
-    
-    //Set autosave state (Default: true)
-    global.autosave = real(file_text_read_string(file));
-
-    //Close the file
-    file_text_close(file);
+    new_file = true;
     
 }
-else {
+
+if (new_file) {
 
     //Fullscreen is off by default
     fullscreen = 0;
